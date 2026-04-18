@@ -431,8 +431,7 @@ class KernelDoc:
         if self.entry:
             self.entry.dump_section(start_new)
 
-    # TODO: rename it to store_declaration after removal of kernel-doc.pl
-    def output_declaration(self, dtype, name, **args):
+    def store_declaration(self, dtype, name, **args):
         """
         Store the entry into an entry array.
 
@@ -887,9 +886,9 @@ class KernelDoc:
         self.create_parameter_list(ln, decl_type, members, ';',
                                    declaration_name)
         self.check_sections(ln, declaration_name, decl_type)
-        self.output_declaration(decl_type, declaration_name,
-                                definition=self.format_struct_decl(declaration),
-                                purpose=self.entry.declaration_purpose)
+        self.store_declaration(decl_type, declaration_name,
+                               definition=self.format_struct_decl(declaration),
+                               purpose=self.entry.declaration_purpose)
 
     def dump_enum(self, ln, proto):
         """
@@ -960,8 +959,8 @@ class KernelDoc:
                 self.emit_msg(ln,
                               f"Excess enum value '@{k}' description in '{declaration_name}'")
 
-        self.output_declaration('enum', declaration_name,
-                                purpose=self.entry.declaration_purpose)
+        self.store_declaration('enum', declaration_name,
+                               purpose=self.entry.declaration_purpose)
 
     def dump_var(self, ln, proto):
         """
@@ -1033,10 +1032,10 @@ class KernelDoc:
         if default_val:
             default_val = default_val.lstrip("=").strip()
 
-        self.output_declaration("var", declaration_name,
-                                full_proto=full_proto,
-                                default_val=default_val,
-                                purpose=self.entry.declaration_purpose)
+        self.store_declaration("var", declaration_name,
+                               full_proto=full_proto,
+                               default_val=default_val,
+                               purpose=self.entry.declaration_purpose)
 
     def dump_declaration(self, ln, prototype):
         """
@@ -1149,11 +1148,11 @@ class KernelDoc:
         #
         # Store the result.
         #
-        self.output_declaration(decl_type, declaration_name,
-                                typedef=('typedef' in return_type),
-                                functiontype=return_type,
-                                purpose=self.entry.declaration_purpose,
-                                func_macro=func_macro)
+        self.store_declaration(decl_type, declaration_name,
+                               typedef=('typedef' in return_type),
+                               functiontype=return_type,
+                               purpose=self.entry.declaration_purpose,
+                               func_macro=func_macro)
 
 
     def dump_typedef(self, ln, proto):
@@ -1186,10 +1185,10 @@ class KernelDoc:
 
             self.create_parameter_list(ln, 'function', args, ',', declaration_name)
 
-            self.output_declaration('function', declaration_name,
-                                    typedef=True,
-                                    functiontype=return_type,
-                                    purpose=self.entry.declaration_purpose)
+            self.store_declaration('function', declaration_name,
+                                   typedef=True,
+                                   functiontype=return_type,
+                                   purpose=self.entry.declaration_purpose)
             return
         #
         # Not a function, try to parse a simple typedef.
@@ -1203,8 +1202,8 @@ class KernelDoc:
                               f"expecting prototype for typedef {self.entry.identifier}. Prototype was for typedef {declaration_name} instead\n")
                 return
 
-            self.output_declaration('typedef', declaration_name,
-                                    purpose=self.entry.declaration_purpose)
+            self.store_declaration('typedef', declaration_name,
+                                   purpose=self.entry.declaration_purpose)
             return
 
         self.emit_msg(ln, "error: Cannot parse typedef!")
@@ -1689,7 +1688,7 @@ class KernelDoc:
 
         if doc_end.search(line):
             self.dump_section()
-            self.output_declaration("doc", self.entry.identifier)
+            self.store_declaration("doc", self.entry.identifier)
             self.reset_state(ln)
 
         elif doc_content.search(line):
